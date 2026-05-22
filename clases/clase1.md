@@ -152,3 +152,38 @@ Vamos a hacer énfasis en software abierto
 
 3. Accesibilidad a recursos y metodología sin limitación de capacidad de computo
 :::
+---
+## Introducción a Physics-Informed Machine Learning (PIML)
+El **PIML** es una disciplina donde convergen tres conceptos principales:
+* **Modelado físico**: ecuaciones diferenciales que modelan la física del problema.
+* **Aprendizaje automático**: algoritmos de *machine learning*.
+* **Simulaciones numéricas**: para resolver las ecuaciones diferenciales ya mencionadas.
+```{figure} figures/venn-diagram-piml.png
+---
+width: 60%
+name: fig-piml-diagram
+---
+Caracterización del PIML a partir de la intersección entre el modelado físico, aprendizaje automático y simulaciones numéricas.
+```
+## Machine Learning: ¿es una caja negra de algoritmos?
+1. Tiene poca interpretabilidad, no sabemos cómo aprende.
+2. No extrapola bien fuera de los datos entrenados.
+3. Es difícil de implementar.
+
+Bajo esas críticas se fundamenta la idea de apoyarnos en leyes físicas a la hora de hacer uso del aprendizaje automático.
+:::{note} Ejemplo: oscilador armónico amortiguado
+Se pueden ver diferencias a la hora de entrenar una red neuronal **sin** restricciones físicas ({numref}`fig-nn`) y **con** restricciones físicas ({numref}`fig-pinn`).
+```{figure} figures/nn.png
+---
+width: 60%
+name: fig-nn
+---
+Aproximación de la solución del problema del oscilador armónico amortiguado utilizando aprendizaje automático entrenado en los puntos naranjas de la curva.
+```
+```{figure} figures/pinn.png
+---
+width: 60%
+name: fig-pinn
+---
+Aproximación de la solución del problema del oscilador armónico amortiguado usando PIML entrenado en los puntos naranjas de la curva.
+```
