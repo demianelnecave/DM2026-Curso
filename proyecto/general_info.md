@@ -95,7 +95,6 @@ La responsabilidad sobre el contenido del informe es siempre de los autores: cua
 :::
 
 
-
 ## Evaluación
 
 La evaluación final consiste en una nota combinada entre la presentación de posters y el proyecto final.
