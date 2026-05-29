@@ -14,7 +14,7 @@ A continuación, una lista de los estudiantes que contribuyeron a cada clase.
 
 | Clase         | Alumnos/as |
 | ------------- | ------------- |
-| No1           | ...  |
+| No1           | Sebastian Souto ([@SoutoSebastian](https://github.com/SoutoSebastian)), Gian Lucca Sanza([@xGiannis](https://github.com/xGiannis)), Carolina Zappala ([@carozappala](https://github.com/carozappala))  |
 | No2           | Ali Martín Zynda ([@alimartinza](https://github.com/alimartinza)), Cecilia Bolaños ([@ceciliabolanos](https://github.com/ceciliabolanos)), Manuel Matías Drescher ([@ManuDrescher](https://github.com/ManuDrescher))|
 | No3           | ...  |
 | No4           | Francisco Castillo Menegotto ([@FrCastillo](https://github.com/FrCastilloM)), Lucas Grasso Ramos ([@LucasGrasso](https://github.com/LucasGrasso))  |

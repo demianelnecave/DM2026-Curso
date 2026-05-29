@@ -5,6 +5,12 @@ title: Glosario
 # Glosario
 
 :::{glossary}
+Modelado híbrido
+: Enfoque de modelado que combina modelos físicos tradicionales con herramientas de aprendizaje automático y técnicas basadas en datos. - [Clase 1](clases/clase1.md)
+
+Physics Informed Machine Learning (PIML)
+: Área del aprendizaje automático que incorpora conocimiento físico, ecuaciones diferenciales o restricciones científicas dentro del entrenamiento de modelos de machine learning. - [Clase 1](clases/clase1.md)
+
 ODE
 : Ecuación Diferencial Ordinaria (*Ordinary Differential Equation*). Ecuación que describe la evolución de un estado $u(t)$ en función de sus derivadas respecto al tiempo: $\frac{du}{dt} = f(u, t, \theta)$. — [Clase 2](clases/clase2.md)
 
