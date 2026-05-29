@@ -35,7 +35,7 @@ project:
       children:
         - file: proyecto/general_info.md
         - file: proyecto/proyectos.md
-    - file: glossario.md
+    - file: glosario.md
     - file: referencias.md
     - file: contribucion.md
     - file: preguntas_frecuentes.md
