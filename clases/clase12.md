@@ -55,6 +55,103 @@ end
 ```
 Esto nos va a permitir instanciar los números duales y operar sobre ellos, trasladando siempre en la *parte dual* la derivada correspondiente a la ejecución de las operaciones.
 
+Si creamos 2 números duales:
 
+```julia
+a = DualNumber(1.0, 0.0)
+b = DualNumber(2.0, 1.0)
+```
+Y hacemos la operación *a + b* deberia devolver:
+
+```julia
+a + b = DualNumber(3.0, 1.0)
+```
+Analogamente, si creamos 2 números duales:
+
+```julia
+a = DualNumber(0.9, 0.0)
+b = DualNumber(1.4, 1.0)
+```
+Y hacemos la operación *a * b* deberia devolver:
+
+```julia
+a * b = DualNumber(1.4 * 0.9, 0.9)
+```
+De esta forma, se puede observar como la parte dual arrastra el valor de la derivada, y esto se puede hacer cuantas veces uno quiera.
+
+Sigamos con uan función un poco más compleja.
+```julia
+#Define operations on dual numbers
+function Base.:(sin)(a::DualNumber)
+    res_value = sin(a.value)
+    res_derivative = cos(a.value) * a.derivative
+    return DualNumber(res_value, res_derivative)
+end
+```
+Como estas funciones, se pueden crear tantas como operaciones tengamos, sin importar que sean unitarias, binarias, etc.
+
+Siempre lo que uno consigue es que la primer componente tenga el *valor* y la segunda componente sea su *derivada*.
+
+Los números duales son muy útiles a la hora de calcular derivadas parciales e incluso direccionales,
+debido a que esta estructura permite flexibilizar hacia donde esta derivando uno.
+
+*Ejemplo*<br>
+Si hubiesemos querido derivar respecto a b, solo deberiamos haber modificado el input de la siguiente manera:
+```julia
+a = DualNumber(0.9, 1.0)
+b = DualNumber(1.4, 0.0)
+a * b = DualNumber(1.4 * 0.9, 1.4)
+```
+En la práctica uno no crea todas estas funciones desde 0, ya que existe una libreria que contiene todas estas funciones y muchas más.
+Uno solo la importa y usa todas las herramientas que provee esta librería.
+
+*Ejemplo*
+```julia
+using ForwardDiff
+
+x = ForwardDiff.Dual(2.0, 1.0)
+
+y = x^2 + 3x
+```
+
+A diferencia de lo que hacíamos en diferencias finitas el valor de la derivada usando *AD* es exacto.
+
+Si probamos esto con diferencias finitas:
+
+La derivada se aproxima mediante
+
+$$
+\frac{f(a+\epsilon)-f(a)}{\epsilon}
+$$
+
+```julia
+f(x) = sin(x * 0.9)
+
+epsilon = 1e-10
+@show (f(a.value + ϵ ) - f(a.value)) / ϵ  
+```
+Mientras que con *AD* el cálculo de la derivada es exacto, con diferencias finitas comienzan a haber errores de truncación debido a
+la sensibilidad del resultado con respecto a $\epsilon$.
+
+Una contra de este método es que viene con un costo de memoria más alto, debido a que ahora estamos trabajando no solo con su valor
+sino que también con su derivada.
+
+En ecuaciones diferenciales, uno propaga el número dual en el solver númerico y consigue la solución y la derivada de esa solución
+con respecto a los parámetros.
+
+
+Veamos una representación de lo que sucede con cada método:
+
+![Gráfico](../images/clase12.png)
+
+Se observa que con la *solución exacta de diferencias finitas*, el error baja y luego vuelve a subir debido al error de truncado.
+
+Además, la otra curva refleja la *solución exacta de diferenciacion compleja*, donde se ve que la misma baja hasta $10^{-16}$, el
+error de máquina.
+
+Por último, la curva violeta representa el error de *forward AD*. En este caso, se puede observar que el mismo se adapta totalmente
+a la tolerancia ya que en ambos gráficos la curva se mantiene constante sobre la tolerancia en cada caso respectivamente.
+
+En resumen, *diferencias fínitas* es el método menos exacto ya que contiene error de truncado, mientras que *diferenciación compleja* baja hasta error de máquina a partir de un cierto $\epsilon$. *Forward AD* no depende de $\epsilon$, por lo que, en caso de que la tolerancia fuese el error de máquina, la curva se mantendría constante en ese valor.
 
 
