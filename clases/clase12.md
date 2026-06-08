@@ -10,8 +10,9 @@ title: No12 - Programación Diferencial Pt2
 :width: 100%
 :::
 
-Estas notas prosiguen la temática de {term}`Programación diferenciable` de la clase pasada, retomando la introducción a {term}`Diferenciación automática` (*Automatic Differentation (AD)*).
-En particular, comenzamos con una implementación de *AD* en Julia, haciendo uso de los {term}`números duales`.
+Estas notas prosiguen la temática de {term}`Programación diferenciable` de la clase pasada, retomando la introducción a {term}`Diferenciación automática directa` (*Forward AD*). 
+De los métodos *forward* discretos vistos en la materia, este es el que se usa en la práctica, por su simplicidad y exactitud en el cómputo. 
+En particular, comenzamos con una implementación de *Forward AD* en Julia, haciendo uso de los {term}`números duales`.
 
 ## Números duales
 
@@ -82,13 +83,13 @@ De esta forma, se puede observar como la parte dual arrastra el valor de la deri
 Sigamos con uan función un poco más compleja.
 ```julia
 #Define operations on dual numbers
-function Base.:(sin)(a::DualNumber)
-    res_value = sin(a.value)
+function Base.:(sin(x))(a::DualNumber)
+    res_value = sin(x)(a.value)
     res_derivative = cos(a.value) * a.derivative
     return DualNumber(res_value, res_derivative)
 end
 ```
-Como estas funciones, se pueden crear tantas como operaciones tengamos, sin importar que sean unitarias, binarias, etc.
+Como estas funciones, se pueden crear tantas como operaciones tengamos, sin(x) importar que sean unitarias, binarias, etc.
 
 Siempre lo que uno consigue es que la primer componente tenga el *valor* y la segunda componente sea su *derivada*.
 
@@ -107,14 +108,14 @@ Uno solo la importa y usa todas las herramientas que provee esta librería.
 
 *Ejemplo*
 ```julia
-using ForwardDiff
+usin(x)g ForwardDiff
 
 x = ForwardDiff.Dual(2.0, 1.0)
 
 y = x^2 + 3x
 ```
 
-A diferencia de lo que hacíamos en diferencias finitas el valor de la derivada usando *AD* es exacto.
+A diferencia de lo que hacíamos en diferencias finitas el valor de la derivada usando *Forward AD* es exacto.
 
 Si probamos esto con diferencias finitas:
 
@@ -125,16 +126,16 @@ $$
 $$
 
 ```julia
-f(x) = sin(x * 0.9)
+f(x) = sin(x)(x * 0.9)
 
 epsilon = 1e-10
 @show (f(a.value + ϵ ) - f(a.value)) / ϵ  
 ```
-Mientras que con *AD* el cálculo de la derivada es exacto, con diferencias finitas comienzan a haber errores de truncación debido a
+Mientras que con *Forward AD* el cálculo de la derivada es exacto, con diferencias finitas comienzan a haber errores de truncación debido a
 la sensibilidad del resultado con respecto a $\epsilon$.
 
 Una contra de este método es que viene con un costo de memoria más alto, debido a que ahora estamos trabajando no solo con su valor
-sino que también con su derivada.
+sin(x)o que también con su derivada.
 
 En ecuaciones diferenciales, uno propaga el número dual en el solver númerico y consigue la solución y la derivada de esa solución
 con respecto a los parámetros.
@@ -152,4 +153,40 @@ Por último, la curva violeta representa el error de *forward AD*. En este caso,
 a la tolerancia ya que en ambos gráficos la curva se mantiene constante sobre la tolerancia en cada caso respectivamente.
 
 En resumen, *diferencias fínitas* es el método menos exacto ya que contiene error de truncado, mientras que *diferenciación compleja* baja hasta error de máquina a partir de un cierto $\epsilon$. *Forward AD* no depende de $\epsilon$, por lo que, en caso de que la tolerancia fuese el error de máquina, la curva se mantendría constante en ese valor.
+
+¿Y por qué no bajar el $\epsilon$ hasta que el error baje hasta el error de máquina usando *diferenciación compleja*? 
+La ventaja de usar *Forward AD* recae en la eficiencia y simplicidad.
+
+Supongamos que tenemos la función $f(x) = sen(x^2)$, entonces el grafo computacional de la función puede ser expresado como
+
+```{mermaid}
+graph LR
+    A((v₀))
+    B((v₁))
+    C((v₂))
+
+    A -->|"x ↦ x²"| B
+    B -->|"x ↦ sin(x)"| C
+```
+Los pasos a seguir son: 
+
+**Diferenciación compleja**
+1. Construir $x = x_1 + ix_2$
+2. Computar $x^2 = x_{1}^{2} - x_{2}^{2} + 2i   x_1\  x_2 $
+3. Computar $\sin(x^2)=\sin(x_1^2-x_2^2)\ \cosh(2x_1x_2)+i\ \cos(x_1^2-x_2^2)\ \sinh(2x_1x_2)$
+4. Calcular $ \lim_{x_2\to0} \cos(x_{1}^{2} - x_{2}^{2})  \sinh( 2  x_1  x_2) = \cos(x_{1}^{2} - x_{2}^{2})\  2  x_{1}  x_{2}$
+
+
+**Forward *AD***
+1. Construir $x_{\epsilon} = x_1 + \epsilon  x_2 $
+2. Computar $x^2 = x_{1}^{2} +  \epsilon  2\  x_1\  x_2 $
+3. Computar $ \sin(x_{\epsilon}^{2}) = \sin(x_{1}^{2}) + \epsilon  \cos(x_{1}^{2}) 2 x_{1}  x_{2} $
+
+Con la diferenciación compleja, se deben hacer cálculos de términos redundantes, que en el caso con los números duales se omiten haciendo uso de la propiedad que define a los mismos.
+
+## Ecuaciones de sensibilidad
+
+Continuando con el recorrido por los distintos métodos de programación diferencial, las **Ecuaciones de sensibilidad** caen entre aquellas consideradas continuas y discretas. 
+Con continuo, se refiere a primero operar con la ecuación diferencial para luego discretizarla, en contraposición a los métodos discretos que se vieron con antelación que primero calculaban numéricamente la ecuación con el solver mediante.
+
 
