@@ -258,37 +258,38 @@ $$\frac{df}{dx} = 2x_1\cos(x_1^2)$$
 
 
 **Conclusión:** En el método de números duales (Forward AD) podemos obtener la derivada de forma inmediata (solamente una en una evaluación de la función tenemos el valor real y su derivada) sin necesidad de usar trucos matematicos, meternos con los limites o tener que extraer la parte imaginaria de un resultado. Es decir, si integramos esto dentro de un solver de ODEs, en cada paso tenemos la derivada correspondiente y de forma directa y automática.
-<!-- ¿Y por qué no bajar el $\epsilon$ hasta que el error baje hasta el error de máquina usando *diferenciación compleja*? 
-La ventaja de usar *Forward AD* recae en la eficiencia y simplicidad.
 
-Supongamos que tenemos la función $f(x) = sen(x^2)$, entonces el grafo computacional de la función puede ser expresado como
+%¿Y por qué no bajar el $\epsilon$ hasta que el error baje hasta el error de máquina usando *diferenciación compleja*? 
+%La ventaja de usar *Forward AD* recae en la eficiencia y simplicidad.
 
-```{mermaid}
-graph LR
-    A((v₀))
-    B((v₁))
-    C((v₂))
+%Supongamos que tenemos la función $f(x) = sen(x^2)$, entonces el grafo computacional de la función puede ser expresado como
 
-    A -->|"x ↦ x²"| B
-    B -->|"x ↦ sin(x)"| C
-```
-Los pasos a seguir son: 
+%```{mermaid}
+%graph LR
+%    A((v₀))
+%    B((v₁))
+%    C((v₂))
 
-**Diferenciación compleja**
-1. Construir $x = x_1 + ix_2$
-2. Computar $x^2 = x_{1}^{2} - x_{2}^{2} + 2i   x_1\  x_2 $
-3. Computar $\sin(x^2)=\sin(x_1^2-x_2^2)\ \cosh(2x_1x_2)+i\ \cos(x_1^2-x_2^2)\ \sinh(2x_1x_2)$
-4. Calcular $ \lim_{x_2\to0} \cos(x_{1}^{2} - x_{2}^{2})  \sinh( 2  x_1  x_2) = \cos(x_{1}^{2} - x_{2}^{2})\  2  x_{1}  x_{2}$
+%    A -->|"x ↦ x²"| B
+%    B -->|"x ↦ sin(x)"| C
+%```
+%Los pasos a seguir son: 
+
+%**Diferenciación compleja**
+%1. Construir $x = x_1 + ix_2$
+%2. Computar $x^2 = x_{1}^{2} - x_{2}^{2} + 2i   x_1\  x_2 $
+%3. Computar $\sin(x^2)=\sin(x_1^2-x_2^2)\ \cosh(2x_1x_2)+i\ \cos(x_1^2-x_2^2)\ \sinh(2x_1x_2)$
+%4. Calcular $ \lim_{x_2\to0} \cos(x_{1}^{2} - x_{2}^{2})  \sinh( 2  x_1  x_2) = \cos(x_{1}^{2} - x_{2}^{2})\  2  x_{1}  x_{2}$
 
 
-**Forward *AD***
-1. Construir $x_{\epsilon} = x_1 + \epsilon  x_2 $
-2. Computar $x^2 = x_{1}^{2} +  \epsilon  2\  x_1\  x_2 $
-3. Computar $ \sin(x_{\epsilon}^{2}) = \sin(x_{1}^{2}) + \epsilon  \cos(x_{1}^{2}) 2 x_{1}  x_{2} $
+%**Forward *AD***
+%1. Construir $x_{\epsilon} = x_1 + \epsilon  x_2 $
+%2. Computar $x^2 = x_{1}^{2} +  \epsilon  2\  x_1\  x_2 $
+%3. Computar $ \sin(x_{\epsilon}^{2}) = \sin(x_{1}^{2}) + \epsilon  \cos(x_{1}^{2}) 2 x_{1}  x_{2} $
 
-Con la diferenciación compleja, se deben hacer cálculos de términos redundantes, que en el caso con los números duales se omiten haciendo uso de la propiedad que define a los mismos.
+%Con la diferenciación compleja, se deben hacer cálculos de términos redundantes, que en el caso con los números duales se omiten %haciendo uso de la propiedad que define a los mismos.
 
- -->
+
  
 ## Metodos Continuos Forward
 
