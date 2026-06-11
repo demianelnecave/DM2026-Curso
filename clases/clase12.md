@@ -10,8 +10,9 @@ title: No12 - Programación Diferencial Pt2
 :width: 100%
 :::
 
-Estas notas prosiguen la temática de {term}`Programación diferenciable` de la clase pasada, retomando la introducción a {term}`Diferenciación automática` (*Automatic Differentation (AD)*).
-En particular, comenzamos con una implementación de *AD* en Julia, haciendo uso de los {term}`números duales`.
+Estas notas prosiguen la temática de {term}`Programación diferenciable` de la clase pasada, retomando la introducción a {term}`Diferenciación automática directa` (*Forward AD*). 
+De los métodos *forward* discretos vistos en la materia, este es el que se usa en la práctica, por su simplicidad y exactitud en el cómputo. 
+En particular, comenzamos con una implementación de *Forward AD* en Julia, haciendo uso de los {term}`números duales`.
 
 ## Números duales
 
@@ -82,13 +83,13 @@ De esta forma, se puede observar como la parte dual arrastra el valor de la deri
 Sigamos con uan función un poco más compleja.
 ```julia
 #Define operations on dual numbers
-function Base.:(sin)(a::DualNumber)
-    res_value = sin(a.value)
+function Base.:(sin(x))(a::DualNumber)
+    res_value = sin(x)(a.value)
     res_derivative = cos(a.value) * a.derivative
     return DualNumber(res_value, res_derivative)
 end
 ```
-Como estas funciones, se pueden crear tantas como operaciones tengamos, sin importar que sean unitarias, binarias, etc.
+Como estas funciones, se pueden crear tantas como operaciones tengamos, sin(x) importar que sean unitarias, binarias, etc.
 
 Siempre lo que uno consigue es que la primer componente tenga el *valor* y la segunda componente sea su *derivada*.
 
@@ -107,14 +108,14 @@ Uno solo la importa y usa todas las herramientas que provee esta librería.
 
 *Ejemplo*
 ```julia
-using ForwardDiff
+usin(x)g ForwardDiff
 
 x = ForwardDiff.Dual(2.0, 1.0)
 
 y = x^2 + 3x
 ```
 
-A diferencia de lo que hacíamos en diferencias finitas el valor de la derivada usando *AD* es exacto.
+A diferencia de lo que hacíamos en diferencias finitas el valor de la derivada usando *Forward AD* es exacto.
 
 Si probamos esto con diferencias finitas:
 
@@ -125,16 +126,16 @@ $$
 $$
 
 ```julia
-f(x) = sin(x * 0.9)
+f(x) = sin(x)(x * 0.9)
 
 epsilon = 1e-10
 @show (f(a.value + ϵ ) - f(a.value)) / ϵ  
 ```
-Mientras que con *AD* el cálculo de la derivada es exacto, con diferencias finitas comienzan a haber errores de truncación debido a
+Mientras que con *Forward AD* el cálculo de la derivada es exacto, con diferencias finitas comienzan a haber errores de truncación debido a
 la sensibilidad del resultado con respecto a $\epsilon$.
 
 Una contra de este método es que viene con un costo de memoria más alto, debido a que ahora estamos trabajando no solo con su valor
-sino que también con su derivada.
+sin(x)o que también con su derivada.
 
 En ecuaciones diferenciales, uno propaga el número dual en el solver númerico y consigue la solución y la derivada de esa solución
 con respecto a los parámetros.
@@ -257,3 +258,113 @@ $$\frac{df}{dx} = 2x_1\cos(x_1^2)$$
 
 
 **Conclusión:** En el método de números duales (Forward AD) podemos obtener la derivada de forma inmediata (solamente una en una evaluación de la función tenemos el valor real y su derivada) sin necesidad de usar trucos matematicos, meternos con los limites o tener que extraer la parte imaginaria de un resultado. Es decir, si integramos esto dentro de un solver de ODEs, en cada paso tenemos la derivada correspondiente y de forma directa y automática.
+<!-- ¿Y por qué no bajar el $\epsilon$ hasta que el error baje hasta el error de máquina usando *diferenciación compleja*? 
+La ventaja de usar *Forward AD* recae en la eficiencia y simplicidad.
+
+Supongamos que tenemos la función $f(x) = sen(x^2)$, entonces el grafo computacional de la función puede ser expresado como
+
+```{mermaid}
+graph LR
+    A((v₀))
+    B((v₁))
+    C((v₂))
+
+    A -->|"x ↦ x²"| B
+    B -->|"x ↦ sin(x)"| C
+```
+Los pasos a seguir son: 
+
+**Diferenciación compleja**
+1. Construir $x = x_1 + ix_2$
+2. Computar $x^2 = x_{1}^{2} - x_{2}^{2} + 2i   x_1\  x_2 $
+3. Computar $\sin(x^2)=\sin(x_1^2-x_2^2)\ \cosh(2x_1x_2)+i\ \cos(x_1^2-x_2^2)\ \sinh(2x_1x_2)$
+4. Calcular $ \lim_{x_2\to0} \cos(x_{1}^{2} - x_{2}^{2})  \sinh( 2  x_1  x_2) = \cos(x_{1}^{2} - x_{2}^{2})\  2  x_{1}  x_{2}$
+
+
+**Forward *AD***
+1. Construir $x_{\epsilon} = x_1 + \epsilon  x_2 $
+2. Computar $x^2 = x_{1}^{2} +  \epsilon  2\  x_1\  x_2 $
+3. Computar $ \sin(x_{\epsilon}^{2}) = \sin(x_{1}^{2}) + \epsilon  \cos(x_{1}^{2}) 2 x_{1}  x_{2} $
+
+Con la diferenciación compleja, se deben hacer cálculos de términos redundantes, que en el caso con los números duales se omiten haciendo uso de la propiedad que define a los mismos.
+
+ -->
+ 
+## Metodos Continuos Forward
+
+**Idea central**: A diferencia de los métodos discretos, donde se toma un solver numérico ya discretizado y se diferencia su algoritmo paso a paso, en los métodos continuos la estrategia es diferenciar primero y luego discretizar. Esto permite que al tomar como punto de entrada la propia ecuación diferencial, el cálculo de las sensibilidades se vuelve independiente de la lógica interna del solver, evitando asi depender del error numérico de la discretización.
+
+### Ecuación de Sensibilidad
+
+Tenemos una Ecuación Diferencial Ordinaria que depende de ciertos parámetros $\theta$:
+
+$$\frac{du}{dt} = f(u, t, \theta), \quad u(t_0) = u_0$$
+
+y una función de pérdida a minimizar:
+$$L(\theta) = L(u(\cdot, \theta), \theta)$$
+
+Para optimizar $\theta$, necesitamos el gradiente de la pérdida. 
+Usando la regla de la cadena:
+
+$$\frac{dL}{d\theta} = \frac{\partial L}{\partial u} \cdot \frac{\partial u}{\partial \theta} + \frac{\partial L}{\partial \theta}$$
+
+* **Fácil de calcular:** $\frac{\partial L}{\partial u}$ y $\frac{\partial L}{\partial \theta}$
+
+* **Difícil de calcular:** $\frac{\partial u}{\partial \theta}$. A este término se lo conoce como **Sensibilidad** ($S$).
+
+---
+
+#### Mini ejemplo (Ajuste de parámetros con error cuadrático)
+
+$$L(\theta) = \| u(t_1; \theta) - u_{\text{obs}} \|_2^2$$
+
+Tenemos que:
+
+* $\frac{\partial L}{\partial \theta} = 0$
+
+* $\frac{\partial L}{\partial u} = 2(u(t_1; \theta) - u_{\text{obs}})$
+
+---
+
+### Derivación de la Ecuación de Sensibilidad
+
+Para calcular $S(t) = \frac{\partial u}{\partial \theta}$, aprovechamos la ODE original:
+
+$$\frac{du}{dt} - f(u, t, \theta) = 0$$
+
+Aplicamos la derivada parcial respecto a $\theta$:
+
+$$\frac{\partial}{\partial \theta}\left(\frac{du}{dt}\right) - \frac{\partial}{\partial \theta}\big(f(u, t, \theta)\big) = 0$$
+
+y aprovechando que tienen la misma derivada y otras condiciones, podemos intercambiar el orden de derivación en el primer término:
+
+$$\frac{\partial}{\partial \theta}\left(\frac{du}{dt}\right) = \frac{d}{dt}\left(\frac{\partial u}{\partial \theta}\right) = \frac{dS}{dt}$$
+
+Por otro lado, aplicamos regla de la cadena al segundo término:
+
+$$\frac{\partial}{\partial \theta}\big(f(u, t, \theta)\big) = \frac{\partial f}{\partial u}\frac{\partial u}{\partial \theta} + \frac{\partial f}{\partial \theta} = \frac{\partial f}{\partial u} \cdot S + \frac{\partial f}{\partial \theta}$$
+
+Entonces, volviendo a nuestra ecuación original, tenemos que:
+
+$$\frac{\partial}{\partial \theta}\left(\frac{du}{dt}\right) - \frac{\partial}{\partial \theta}\big(f(u, t, \theta)\big) = \frac{dS}{dt} - \left(\frac{\partial f}{\partial u} \cdot S + \frac{\partial f}{\partial \theta}\right) = 0$$
+
+Y por lo tanto:
+
+$$\frac{dS}{dt} = \frac{\partial f}{\partial u} \cdot S + \frac{\partial f}{\partial \theta}$$
+
+Con la condición inicial:
+$$S(t_0) = \frac{\partial u_0}{\partial \theta}$$
+
+**Observación:** En la mayoría de los casos $S(t_0) = 0$ porque el estado inicial $u_0$ suele no depender de los parámetros que queremos optimizar.
+
+
+**Pros y Contras:**
+
+Pro:
+- Aunque la ODE original sea no lineal o lineal, la ODE referida a la sensibildiad es lineal respecto a $S$. Por lo tanto es simple de calcular.
+
+Contra:
+- Si el estado $u \in \mathbb{R}^n$ y los parámetros $\theta \in \mathbb{R}^p$, la matriz de sensibilidad $S$ es de tamaño $n \times p$. Por lo tanto el sistema de asociado a la ODE pasa a tener un tamaño de $n + (n \times p) = n(p+1)$ ecuaciones
+
+Importante:
+- Dado que es un método forward se resuelve en la práctica la ODE original $u(t)$ junto con la sensibilidad $S(t)$ al mismo tiempo.
