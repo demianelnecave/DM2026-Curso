@@ -22,8 +22,7 @@ Poster del proyecto.
 
 **Links:**
 - [Repositorio](https://github.com/usuario/repo)
-- [Slides / Informe](https://link-opcional)
-- Lo que quieran incluir.
+- [Informe](https://link-opcional)
 ```
 
 ---
@@ -196,18 +195,20 @@ Poster del proyecto.
 
 ---
 
-### Proyecto 27
+### Adaptive Integration Time (AIT) para Neural ODEs
 
-**Autores:**
+**Autores:** Lucas Grasso (`@LucasGrasso`)
 
-**Resumen:**
+**Resumen:** Las Neural ODEs estándar requieren fijar de antemano el tiempo de integración, lo que impide asignar dinámicamente el cómputo según la dificultad de cada entrada. Este proyecto introduce Adaptive Integration Time (AIT), un análogo continuo del Adaptive Computation Time (ACT). Se aumenta el estado de la ODE con una unidad de halting aprendida cuya probabilidad acumulada dispara un evento del solver que termina la integración, obteniendo así una profundidad de cómputo por entrada. El método es determinista, diferenciable, aplicable a cualquier NODE y se entrena con un término de regularización que penaliza el cómputo excesivo. En experimentos sobre anillos concéntricos (utilizando JAX/diffrax), las AIT-NODEs logran representar funciones que las NODEs vanilla no pueden.
 
-:::{figure} ../assets/proyectos/27/poster.png
+:::{figure} ../assets/proyectos/27/poster.jpg
 :width: 80%
 :align: center
 :::
 
 **Links:**
+- [Repositorio](https://github.com/LucasGrasso/AIT)
+- [Slides / Informe](../assets/proyectos/27/paper.pdf)
 
 ---
 
