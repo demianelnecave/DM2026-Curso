@@ -177,11 +177,14 @@ particular el enfoque UDE, para parametrizar esta diámica e inferir nociones de
 
 ---
 
-### Proyecto 25
+### Trayectorias del espacio latente de frames de videos de sistemas dinámicos a partir de una NODE
 
-**Autores:**
+**Autores:** Demián Elnecavé (`@demianelnecave`), Agustín Rabinowicz (`@agusraba05`)
 
-**Resumen:**
+**Resumen:** Buscamos, partiendo de una VAE entrenada sobre frames de videos sintéticos de algún sistema dinámico simple (en nuestro caso, una pelota rebotando), calcular la trayectoria del espacio latente de los frames. Con esto, intentamos usar esa trayectoria para:
+- Comparar los frames generados por la VAE con sus correspondientes de la trayectoria y debatir si pueden mejorar la performance del modelo
+- Aumentar la fluidez del video y predecir frames faltantes
+- Averiguar si la NODE aprende la dinámica que subyace en el video, esto es si hay algún tipo de semejanza entre el espacio latente de trayectorias de embeddings y las trayectorias del sistema
 
 :::{figure} ../assets/proyectos/25/poster.png
 :width: 80%
@@ -189,7 +192,8 @@ particular el enfoque UDE, para parametrizar esta diámica e inferir nociones de
 :::
 
 **Links:**
-
+- [Repositorio](https://github.com/demianelnecave/TP-Datos-EDs-IA.git)
+- [Informe](https://github.com/demianelnecave/TP-Datos-EDs-IA/blob/main/Informe%20TP%20NODES.pdf)
 ---
 
 ### Proyecto 26
